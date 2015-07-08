@@ -53,8 +53,8 @@ function love.update(dt)
         cam.angle = cam.angle - dt
     end
     mx, my = newmx, newmy
-    oScreenx, oScreeny = grid:toScreen(0, 0, cam.x, cam.y, cam.zoom, cam.angle)
-    mWorldx, mWorldy = grid:toWorld(mx, my, cam.x, cam.y, cam.zoom, cam.angle)
+    oScreenx, oScreeny = editgrid.toScreen(0, 0, cam.x, cam.y, cam.zoom, cam.angle)
+    mWorldx, mWorldy = editgrid.toWorld(mx, my, cam.x, cam.y, cam.zoom, cam.angle)
 end
 
 function love.mousepressed(x, y, button)
