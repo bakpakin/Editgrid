@@ -105,7 +105,7 @@ function grid:draw(camx, camy, zoom, angle, sx, sy, sw, sh)
     lg.translate(-camx, -camy)
 
     local oldLineWidth = lg.getLineWidth()
-    lg.setLineWidth(oldLineWidth / zoom)
+    lg.setLineWidth(1 / zoom)
 
     -- vertical lines
     local xc = sds
@@ -158,6 +158,10 @@ end
 function grid:drawGamera(camera)
     local x, y = camera:getPosition()
     self:draw(x, y, camera:getScale(), camera:getAngle(), camera:getWindow())
+end
+
+function grid:drawHump(camera)
+    self:draw(camera.x, camera.y, camera.scale, camera.rot)
 end
 
 return grid
