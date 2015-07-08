@@ -42,9 +42,9 @@ Default is true.
 
 #### Drawing the grid
 ```lua
-grid:draw(camleft, camtop, zoom, [sx, sy, sw, sh])
+grid:draw(camx, camy, zoom, angle, [sx, sy, sw, sh])
 ```
-Draws the grid to the screen from a perspective. `camleft` and `camtop` represent the grid coordinate at the top left corner of the screen.
+Draws the grid to the screen from a perspective. `camx` and `camy` represent the grid coordinate at the center of the screen.
 `zoom` is the scale multiplier. The four optional parameters represent a rectangle on the screen where the grid is drawn.
 By default, grid is drawn on the whole screen.
 
@@ -60,12 +60,12 @@ Draws a grid from the perspective of a HUMP camera.
 
 #### Coordinate conversion
 ```lua
-local worldx, worldy = editgrid.toWorld(screenx, screeny, camleft, camtop, zoom, [sx, sy])
+local worldx, worldy = editgrid.toWorld(screenx, screeny, camx, camy, zoom, angle, [sx, sy])
 ```
 Converts screen coordinates to world coordinates.
 
 ```lua
-local screenx, screeny = editgrid.toScreen(worldx, worldy, camleft, camtop, zoom, [sx, sy])
+local screenx, screeny = editgrid.toScreen(worldx, worldy, camx, camy, zoom, angle, [sx, sy])
 ```
 Converts world coordinates to screen coordinates.
 
