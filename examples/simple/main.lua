@@ -1,3 +1,6 @@
+-- fix path so all examples can use editgrid from parent directory.
+package.path = [[../../?.lua;]]..package.path
+
 local editgrid = require "editgrid"
 
 -- the grid
