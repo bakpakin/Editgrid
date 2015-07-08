@@ -7,7 +7,7 @@ Its great for level editors and the like because you can zoom in and out without
 It also converts screen coordinates to grid coordinates and vice versa.
 
 Editgrid is also useful for adding a debugging background to games - just call grid:draw(camleft, camtop, zoom)
-before the rest of your draw calls, or if using with gamera, call grid:drawGamera(camera). Currently doesn't support camera rotation.
+before the rest of your draw calls, or if using with gamera, call grid:drawGamera(camera).
 
 ## How to use
 Place editgrid.lua in your project and require it like so:
