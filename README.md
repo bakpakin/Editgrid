@@ -2,8 +2,8 @@
 # Editgrid
 
 ## What's this?
-Editgrid is a module that implements a grid that automatically scales its resolution, like the background grids in 3d modeling software like blender. 
-Its great for level editors and the like because you can zoom in and out without loosing sight of the gridlines. 
+Editgrid is a module that implements a grid that automatically scales its resolution, like the background grids in 3d modeling software like blender.
+Its great for level editors and the like because you can zoom in and out without loosing sight of the gridlines.
 It also converts screen coordinates to grid coordinates and vice versa.
 
 Editgrid is also useful for adding a debugging background to games - just call grid:draw(camleft, camtop, zoom)
@@ -35,7 +35,7 @@ of parameters or nothing, which creates the default grid.
 * `subdivisions` -- the number of minor subdivisions between each major subdivision. Default is 4.
 * `color` -- a list of three numbers representing the rgb values of the grid lines. Default is {220, 220, 220}.
 * `drawScale` -- boolean indicating if the coordinate value is drawn for each gridline. Default is true.
-* `xColor` -- color of the x axis. Default is {0, 0, 255} (blue).
+* `xColor` -- color of the x axis. Default is {255, 0, 0} (red).
 * `yColor` -- color of the y axis. Default is {0, 255, 0} (green).
 * `interval` -- optional argument that makes the grid use a fixed interval instead of scaling with camera zoom.
 
@@ -48,7 +48,7 @@ Draws the grid to the screen from a perspective. `camleft` and `camtop` represen
 By default, grid is drawn on the whole screen.
 
 ```lua
-grid:drawGamera(camera) 
+grid:drawGamera(camera)
 ```
 Draws a grid from the perspective of a gamera camera. Doesn't yet support rotation.
 

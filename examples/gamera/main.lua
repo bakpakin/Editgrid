@@ -19,9 +19,9 @@ local oScreenx, oScreeny = 0, 0
 local cam = gamera.new(-1000, -1000, 2000, 2000)
 
 function love.draw()
+    grid:drawGamera(cam)
     local camx, camy = cam:getPosition()
     local scale = cam:getScale()
-    grid:drawGamera(cam)
     love.graphics.printf(
         "Camera position: (" ..
         camx .. ", " .. camy ..

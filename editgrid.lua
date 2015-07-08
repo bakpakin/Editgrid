@@ -13,7 +13,7 @@ function grid.new(args)
     else
         self.drawScale = args.drawScale
     end
-    self.xColor = args.xColor or {0, 0, 255}
+    self.xColor = args.xColor or {255, 0, 0}
     self.yColor = args.yColor or {0, 255, 0}
     self.interval = args.interval
     return self
