@@ -1,4 +1,4 @@
-![alt text](https://github.com/bakpakin/Editgrid/raw/master/preview.gif)
+![Image Not Found](https://github.com/bakpakin/Editgrid/raw/master/preview.gif)
 # Editgrid
 
 ## What's this?
@@ -34,7 +34,8 @@ of parameters or nothing, which creates the default grid.
 * `size` -- the distance between each major subdivision at 1x zoom. Default is 256.
 * `subdivisions` -- the number of minor subdivisions between each major subdivision. Default is 4.
 * `color` -- a list of three numbers representing the rgb values of the grid lines. Default is {220, 220, 220}.
-* `drawScale` -- boolean indicating if the coordinate value is drawn for each gridline. Default is true.
+* `drawScale` -- boolean indicating if the coordinate value is drawn for each gridline. Scale is only drawn when the grid angle is 0.
+Default is true.
 * `xColor` -- color of the x axis. Default is {255, 0, 0} (red).
 * `yColor` -- color of the y axis. Default is {0, 255, 0} (green).
 * `interval` -- optional argument that makes the grid use a fixed interval instead of scaling with camera zoom.
@@ -50,16 +51,21 @@ By default, grid is drawn on the whole screen.
 ```lua
 grid:drawGamera(camera)
 ```
-Draws a grid from the perspective of a gamera camera. Doesn't yet support rotation.
+Draws a grid from the perspective of a gamera camera.
+
+```lua
+grid:drawHump(camera)
+```
+Draws a grid from the perspective of a HUMP camera.
 
 #### Coordinate conversion
 ```lua
-local worldx, worldy = grid:screenToWorld(screenx, screeny, camleft, camtop, zoom, [sx, sy])
+local worldx, worldy = editgrid.toWorld(screenx, screeny, camleft, camtop, zoom, [sx, sy])
 ```
 Converts screen coordinates to world coordinates.
 
 ```lua
-local screenx, screeny = grid:worldToScreen(worldx, worldy, camleft, camtop, zoom, [sx, sy])
+local screenx, screeny = editgrid.toScreen(worldx, worldy, camleft, camtop, zoom, [sx, sy])
 ```
 Converts world coordinates to screen coordinates.
 
