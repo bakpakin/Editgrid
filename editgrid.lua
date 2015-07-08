@@ -19,12 +19,20 @@ function grid.new(args)
     return self
 end
 
+local function floor(x, y)
+    return math.floor(x / y) * y
+end
+
 local function mod(x, y)
-    return x - math.floor(x / y) * y
+    return x - floor(x, y)
 end
 
 local function getScreen(sx, sy, sw, sh)
     return sx or 0, sy or 0, sw or lg.getWidth(), sh or lg.getHeight()
+end
+
+local function getDefaults(camx, camy, zoom, angle, sx, sy, sw, sh)
+    return camx or 0, camy or 0, zoom or 1, angle or 0, getScreen(sx, sy, sw, sh)
 end
 
 local function getGridInterval(self, zoom)
@@ -36,27 +44,51 @@ local function getGridInterval(self, zoom)
     end
 end
 
-function grid:screenToWorld(screenx, screeny, camleft, camtop, zoom, sx, sy)
-    sx, sy = sx or 0, sy or 0
-    return ((screenx - sx) / zoom) + camleft, ((screeny - sy) / zoom) + camtop
+function grid:toWorld(screenx, screeny, camx, camy, zoom, angle, sx, sy, sw, sh)
+
+    camx, camy, zoom, angle, sx, sy, sw, sh = getDefaults(camx, camy, zoom, angle, sx, sy, sw, sh)
+
+    local sin, cos = math.sin(angle), math.cos(angle)
+    local x, y = (screenx - sw/2 - sx) / zoom, (screeny - sh/2 - sy) / zoom
+    x, y = cos * x - sin * y, sin * x + cos * y
+    return x + camx, y + camy
 end
 
-function grid:worldToScreen(worldx, worldy, camleft, camtop, zoom, sx, sy)
-    sx, sy = sx or 0, sy or 0
-    return (worldx - camleft) * zoom + sx, (worldy - camtop) * zoom + sy
+function grid:toScreen(worldx, worldy, camx, camy, zoom, angle, sx, sy, sw, sh)
+
+    camx, camy, zoom, angle, sx, sy, sw, sh = getDefaults(camx, camy, zoom, angle, sx, sy, sw, sh)
+
+    local sin, cos = math.sin(angle), math.cos(angle)
+    local x, y = worldx - camx, worldy - camy
+    x, y = cos * x + sin * y, -sin * x + cos * y
+    return zoom * x + sw/2 + sx, zoom * y + sh/2 + sy
 end
 
-function grid:draw(camleft, camtop, zoom, sx, sy, sw, sh)
-    local oldsx, oldsy, oldsw, oldsh = love.graphics.getScissor()
-    sx, sy, sw, sh = getScreen(sx, sy, sw, sh)
-    love.graphics.setScissor(sx, sy, sw, sh)
-    camleft, camtop, zoom = camleft or 0, camtop or 0, zoom or 1
+-- return the visible aabb in grid-space as x, y, w, h
+local function visibleBox(camx, camy, zoom, angle, sx, sy, sw, sh)
+    camx, camy, zoom, angle, sx, sy, sw, sh = getDefaults(camx, camy, zoom, angle, sx, sy, sw, sh)
+    local w, h = sw / zoom, sh / zoom
+    if angle ~= 0 then
+        local sin, cos = math.abs(math.sin(angle)), math.abs(math.cos(angle))
+        w, h = cos * w + sin * h, sin * w + cos * h
+    end
+    return camx - w * 0.5, camy - h * 0.5, w, h
+end
 
+local function drawScale(self, camx, camy, zoom, angle, sx, sy, sw, sh)
+    camx, camy, zoom, angle, sx, sy, sw, sh = getDefaults(camx, camy, zoom, angle, sx, sy, sw, sh)
+    -- TODO
+end
+
+function grid:draw(camx, camy, zoom, angle, sx, sy, sw, sh)
+
+    camx, camy, zoom, angle, sx, sy, sw, sh = getDefaults(camx, camy, zoom, angle, sx, sy, sw, sh)
+
+    lg.setScissor(sx, sy, sw, sh)
+    local vx, vy, vw, vh = visibleBox(camx, camy, zoom, angle, sx, sy, sw, sh)
     local c = self.color
-
     local d = getGridInterval(self, zoom)
-    local x1 = -mod(camleft, d) * zoom + sx
-    local y1 = -mod(camtop, d) * zoom + sy
+    local sds = self.subdivisions
 
     -- color fade factor between main grid lines and subdivisions
     local ff = 0.5
@@ -65,78 +97,67 @@ function grid:draw(camleft, camtop, zoom, sx, sy, sw, sh)
 
     -- floating point comparison delta
     local delta = d * 0.5
-    local zeroString = "0"
-    local tmpZeroString
+
+    lg.push()
+    lg.scale(zoom)
+    lg.translate((sw/2 + sx) / zoom, (sh/2 + sy) / zoom)
+    lg.rotate(-angle)
+    lg.translate(-camx, -camy)
+
+    local oldLineWidth = lg.getLineWidth()
+    lg.setLineWidth(oldLineWidth / zoom)
 
     -- vertical lines
-    local xc = mod(camleft / d, self.subdivisions) - 1
-    local realx = camleft + x1 / zoom
-    for x = x1, sx + sw, d * zoom do
-        tmpZeroString = nil
-        if math.abs(realx) < delta then
+    local xc = sds
+    for x = floor(vx, d * sds), vx + vw, d do
+        if math.abs(x) < delta then
             lg.setColor(ycol[1], ycol[2], ycol[3], 255)
-            lg.rectangle("fill", x - 1, sy, 2, sh)
-            -- force axis to be labeled '0' (prevent rounding error)
-            tmpZeroString = zeroString
-            xc = 0
-        elseif xc >= self.subdivisions - 1 then
+            xc = 1
+        elseif xc >= sds then
             lg.setColor(c[1], c[2], c[3], 255)
-            lg.rectangle("fill", x, sy, 1, sh)
-            xc = 0
+            xc = 1
         else
             lg.setColor(c[1] * ff, c[2] * ff, c[3] * ff, 255)
-            lg.rectangle("fill", x, sy, 1, sh)
             xc = xc + 1
         end
-        if self.drawScale then
-            lg.printf(tmpZeroString or realx, x + 2, sy, 200, "left")
-        end
-        realx = realx + d
+        lg.line(x, vy, x, vy + vh)
     end
 
     -- horizontal lines
-    local yc = mod(camtop / d, self.subdivisions) - 1
-    local realy = camtop + y1 / zoom
-    for y = y1, sy + sh, d * zoom do
-        tmpZeroString = nil
-        if math.abs(realy) < delta then
+    local yc = sds
+    for y = floor(vy, d * sds), vy + vh, d do
+        if math.abs(y) < delta then
             lg.setColor(xcol[1], xcol[2], xcol[3], 255)
-            lg.rectangle("fill", sx, y - 1, sw, 2)
-            -- force axis to be labeled '0' (prevent rounding error)
-            tmpZeroString = zeroString
-            yc = 0
-        elseif yc >= self.subdivisions - 1 then
+            yc = 1
+        elseif yc >= sds then
             lg.setColor(c[1], c[2], c[3], 255)
-            lg.rectangle("fill", sx, y, sw, 1)
-            yc = 0
+            yc = 1
         else
             lg.setColor(c[1] * ff, c[2] * ff, c[3] * ff, 255)
-            lg.rectangle("fill", sx, y, sw, 1)
             yc = yc + 1
         end
-        if self.drawScale then
-            lg.printf(tmpZeroString or realy, sx + 2, y, 200, "left")
-        end
-        realy = realy + d
+        lg.line(vx, y, vx + vw, y)
     end
+
+    lg.pop()
+    lg.setLineWidth(oldLineWidth)
 
     -- draw origin
     lg.setColor(255, 255, 255, 255)
-    local ox, oy = self:worldToScreen(0, 0, camleft, camtop, zoom, sx, sy)
+    local ox, oy = self:toScreen(0, 0, camx, camy, zoom, angle, sx, sy, sw, sh)
     lg.rectangle("fill", ox - 1, oy - 1, 2, 2)
     lg.circle("line", ox, oy, 8)
 
-    love.graphics.setScissor(oldsx, oldsy, oldsw, oldsh)
+    if self.drawScale then
+        drawScale(self, camx, camy, zoom, angle, sx, sy, sw, sh)
+    end
+
+    lg.setScissor()
 end
 
 function grid:drawGamera(camera)
-    if camera:getAngle() ~= 0 then -- don't throw error, just don't draw grid.
-        print "editgrid does not yet support non-zero camera angles :(."
-        return
-    end
-    local gl, gt, gw, gh = camera:getWindow()
-    local gvl, gvt = camera:getVisible()
-    self:draw(gvl, gvt, camera:getScale(), gl, gt, gw, gh)
+    local x, y = camera:getPosition()
+    self:draw(x, y, camera:getScale(), camera:getAngle(), camera:getWindow())
 end
 
 return grid

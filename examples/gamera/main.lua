@@ -38,14 +38,22 @@ function love.update(dt)
     local newmx, newmy = love.mouse.getPosition()
     local camx, camy = cam:getPosition()
     local scale = cam:getScale()
+    local angle = cam:getAngle()
     if love.mouse.isDown("l") then
-        camx = camx + (-newmx + mx) / scale
-        camy = camy + (-newmy + my) / scale
-        cam:setPosition(camx, camy)
+        local s, c = cam.sin, cam.cos
+        local dx = (-newmx + mx) / scale
+        local dy = (-newmy + my) / scale
+        cam:setPosition(camx + dx * c - dy * s, camy + dy * c + dx * s)
+    end
+    if love.keyboard.isDown("q") then
+        cam:setAngle(cam:getAngle() + dt)
+    end
+    if love.keyboard.isDown("e") then
+        cam:setAngle(cam:getAngle() - dt)
     end
     mx, my = newmx, newmy
-    oScreenx, oScreeny = grid:worldToScreen(0, 0, camx, camy, scale)
-    mWorldx, mWorldy = grid:screenToWorld(mx, my, camx, camy, scale)
+    oScreenx, oScreeny = cam:toScreen(0, 0)
+    mWorldx, mWorldy = cam:toWorld(mx, my)
 end
 
 function love.mousepressed(x, y, button)
@@ -56,10 +64,6 @@ function love.mousepressed(x, y, button)
         zoomfactor = 1 / 1.05
     end
     if zoomfactor then
-        local camx, camy = cam:getPosition()
-        local scale = cam:getScale()
-        local wx, wy = camx + x / scale, camy + y / scale
-        cam:setScale(scale * zoomfactor)
-        cam:setPosition(wx - x / scale, wy - y / scale)
+        cam:setScale(cam:getScale() * zoomfactor)
     end
 end

@@ -17,13 +17,14 @@ local oScreenx, oScreeny = 0, 0
 
 -- cam.x, cam.y is the top left corner of the camera
 local cam = {
-    x = love.graphics.getWidth() * -0.5,
-    y = love.graphics.getHeight() * -0.5,
-    zoom = 1
+    x = 0,
+    y = 0,
+    zoom = 1,
+    angle = 0
 }
 
 function love.draw()
-    grid:draw(cam.x, cam.y, cam.zoom)
+    grid:draw(cam.x, cam.y, cam.zoom, cam.angle)
     love.graphics.printf(
         "Camera position: (" ..
         cam.x .. ", " .. cam.y ..
@@ -39,12 +40,21 @@ end
 function love.update(dt)
     local newmx, newmy = love.mouse.getPosition()
     if love.mouse.isDown("l") then
-        cam.x = cam.x + (-newmx + mx) / cam.zoom
-        cam.y = cam.y + (-newmy + my) / cam.zoom
+        local s, c = math.sin(cam.angle), math.cos(cam.angle)
+        local dx = (-newmx + mx) / cam.zoom
+        local dy = (-newmy + my) / cam.zoom
+        cam.x = cam.x + dx * c - dy * s
+        cam.y = cam.y + dy * c + dx * s
+    end
+    if love.keyboard.isDown("q") then
+        cam.angle = cam.angle + dt
+    end
+    if love.keyboard.isDown("e") then
+        cam.angle = cam.angle - dt
     end
     mx, my = newmx, newmy
-    oScreenx, oScreeny = grid:worldToScreen(0, 0, cam.x, cam.y, cam.zoom)
-    mWorldx, mWorldy = grid:screenToWorld(mx, my, cam.x, cam.y, cam.zoom)
+    oScreenx, oScreeny = grid:toScreen(0, 0, cam.x, cam.y, cam.zoom, cam.angle)
+    mWorldx, mWorldy = grid:toWorld(mx, my, cam.x, cam.y, cam.zoom, cam.angle)
 end
 
 function love.mousepressed(x, y, button)
@@ -55,8 +65,6 @@ function love.mousepressed(x, y, button)
         zoomfactor = 1 / 1.05
     end
     if zoomfactor then
-        local wx, wy = cam.x + x / cam.zoom, cam.y + y / cam.zoom
         cam.zoom = cam.zoom * zoomfactor
-        cam.x, cam.y = wx - x / cam.zoom, wy - y / cam.zoom
     end
 end
