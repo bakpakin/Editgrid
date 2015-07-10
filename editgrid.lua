@@ -93,7 +93,7 @@ local function drawScale(self, camx, camy, zoom, sx, sy, sw, sh)
 
     -- vertical lines
     local xc = mod(camleft / d, sds) - 1
-    local realx = camleft + x1 / zoom
+    local realx = camleft + (x1 - sx) / zoom
     for x = x1, sx + sw, d * zoom do
         tmpZeroString = nil
         if math.abs(realx) < delta then
@@ -113,7 +113,7 @@ local function drawScale(self, camx, camy, zoom, sx, sy, sw, sh)
 
     -- horizontal lines
     local yc = mod(camtop / d, sds) - 1
-    local realy = camtop + y1 / zoom
+    local realy = camtop + (y1 - sy) / zoom
     for y = y1, sy + sh, d * zoom do
         tmpZeroString = nil
         if math.abs(realy) < delta then
