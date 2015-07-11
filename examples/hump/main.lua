@@ -4,9 +4,6 @@ package.path = [[../../?.lua;]]..package.path
 local editgrid = require "editgrid"
 local camera = require "humpcamera"
 
--- the grid
-local grid = editgrid.new{}
-
 -- mouse location
 local mx, my = 0, 0
 
@@ -16,10 +13,10 @@ local mWorldx, mWorldy = 0, 0
 -- location of grid origin on screen
 local oScreenx, oScreeny = 0, 0
 
-local cam = camera.new()
+local cam = camera.new(0, 0)
 
 function love.draw()
-    grid:drawHump(cam)
+    editgrid.draw(cam)
     local camx, camy = cam:pos()
     local scale = cam.scale
     love.graphics.printf(

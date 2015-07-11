@@ -4,9 +4,6 @@ package.path = [[../../?.lua;]]..package.path
 local editgrid = require "editgrid"
 local gamera = require "gamera"
 
--- the grid
-local grid = editgrid.new{}
-
 -- mouse location
 local mx, my = 0, 0
 
@@ -19,7 +16,7 @@ local oScreenx, oScreeny = 0, 0
 local cam = gamera.new(-1000, -1000, 2000, 2000)
 
 function love.draw()
-    grid:drawGamera(cam)
+    editgrid.draw(cam)
     local camx, camy = cam:getPosition()
     local scale = cam:getScale()
     love.graphics.printf(

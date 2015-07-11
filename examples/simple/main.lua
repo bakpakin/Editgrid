@@ -3,9 +3,6 @@ package.path = [[../../?.lua;]]..package.path
 
 local editgrid = require "editgrid"
 
--- the grid
-local grid = editgrid.new{}
-
 -- mouse location
 local mx, my = 0, 0
 
@@ -24,7 +21,7 @@ local cam = {
 }
 
 function love.draw()
-    grid:draw(cam.x, cam.y, cam.zoom, cam.angle)
+    editgrid.draw(cam)
     love.graphics.printf(
         "Camera position: (" ..
         cam.x .. ", " .. cam.y ..
@@ -53,8 +50,8 @@ function love.update(dt)
         cam.angle = cam.angle - dt
     end
     mx, my = newmx, newmy
-    oScreenx, oScreeny = editgrid.toScreen(0, 0, cam.x, cam.y, cam.zoom, cam.angle)
-    mWorldx, mWorldy = editgrid.toWorld(mx, my, cam.x, cam.y, cam.zoom, cam.angle)
+    oScreenx, oScreeny = editgrid.toScreen(cam, 0, 0)
+    mWorldx, mWorldy = editgrid.toWorld(cam, mx, my)
 end
 
 function love.mousepressed(x, y, button)
