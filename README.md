@@ -61,7 +61,8 @@ local visuals = {
 * `drawScale` -- boolean indicating if the coordinate value is drawn for each gridline. Default is true.
 * `xColor` -- color of the x axis. Default is {255, 0, 0} (red).
 * `yColor` -- color of the y axis. Default is {0, 255, 0} (green).
-* `fadeFactor` -- color multiplier on subdivision grid lines. For example, if `color` is Default is 0.5.
+* `fadeFactor` -- color multiplier on subdivision grid lines. For example, if `color` is {100, 100, 100} and `fadeFactor` is
+0.8, then the color of the minor gridlines will be {80, 80, 80}. Default is 0.5.
 * `interval` -- optional argument that makes the grid use a fixed interval instead of scaling with camera zoom.
 
 #### Coordinate conversion
