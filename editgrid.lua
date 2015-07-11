@@ -31,17 +31,26 @@ local function mod(x, y)
     return x - floor(x, y)
 end
 
-local function getGeometry(t)
+local function unpackCamera(t)
     local sx, sy, sw, sh
     if t.getWindow then -- assume t is a gamera camera
         sx, sy, sw, sh = t:getWindow()
     else
-        sx, sy, sw, sh = t.sx or 0, t.sy or 0, t.sw or lg.getWidth(), t.sh or lg.getHeight()
+        sx, sy, sw, sh =
+            t.sx or 0,
+            t.sy or 0,
+            t.sw or lg.getWidth(),
+            t.sh or lg.getHeight()
     end
-    return t.x or 0, t.y or 0, t.scale or t.zoom or 1, t.angle or t.rot or 0, sx, sy, sw, sh
+    return
+        t.x or 0,
+        t.y or 0,
+        t.scale or t.zoom or 1,
+        t.angle or t.rot or 0,
+        sx, sy, sw, sh
 end
 
-local function getVisuals(t)
+local function unpackVisuals(t)
     local size = t.size or 256
     local sds = t.subdivisions or 4
     local color = t.color or {220, 220, 220}
@@ -53,117 +62,90 @@ local function getVisuals(t)
     end
     local xColor = t.xColor or {255, 0, 0}
     local yColor = t.yColor or {0, 255, 0}
-    return size, sds, drawScale, color, xColor, yColor
+    local fadeFactor = t.fadeFactor or 0.5
+    return size, sds, drawScale, color, xColor, yColor, fadeFactor
 end
 
 local function getGridInterval(visuals, zoom)
     if visuals.interval then
         return visuals.interval
     else
-        local size, sds = getVisuals(visuals)
+        local size, sds = unpackVisuals(visuals)
         return size * math.pow(sds, -math.ceil(math.log(zoom, sds)))
     end
 end
 
-local function visibleBox(args)
-    local camx, camy, zoom, angle, sx, sy, sw, sh = getGeometry(args)
+local function visibleBox(camera)
+    local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local w, h = sw / zoom, sh / zoom
-    if args.angle ~= 0 then
+    if camera.angle ~= 0 then
         local sin, cos = math.abs(math.sin(angle)), math.abs(math.cos(angle))
         w, h = cos * w + sin * h, sin * w + cos * h
     end
     return camx - w * 0.5, camy - h * 0.5, w, h
 end
 
-local function toWorld(args, screenx, screeny)
-    local camx, camy, zoom, angle, sx, sy, sw, sh = getGeometry(args)
+local function toWorld(camera, screenx, screeny)
+    local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local sin, cos = math.sin(angle), math.cos(angle)
     local x, y = (screenx - sw/2 - sx) / zoom, (screeny - sh/2 - sy) / zoom
     x, y = cos * x - sin * y, sin * x + cos * y
     return x + camx, y + camy
 end
 
-local function toScreen(args, worldx, worldy)
-    local camx, camy, zoom, angle, sx, sy, sw, sh = getGeometry(args)
+local function toScreen(camera, worldx, worldy)
+    local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local sin, cos = math.sin(angle), math.cos(angle)
     local x, y = worldx - camx, worldy - camy
     x, y = cos * x + sin * y, -sin * x + cos * y
     return zoom * x + sw/2 + sx, zoom * y + sh/2 + sy
 end
 
-local function drawScaleText(args, visuals)
-    local camx, camy, zoom, angle, sx, sy, sw, sh = getGeometry(args)
-    local size, sds, drawScale, color, xColor, yColor = getVisuals(visuals)
-    local camleft, camtop = toWorld(args, sx, sy)
-    local d = getGridInterval(visuals, zoom)
-    local ff = 0.6
-    local delta = d * 0.5
-    local zeroString = "0"
-    local tmpZeroString
-
-    local x1 = -mod(camleft, d) * zoom + sx
-    local y1 = -mod(camtop, d) * zoom + sy
-
-    -- vertical lines
-    local xc = mod(camleft / d, sds) - 1
-    local realx = camleft + (x1 - sx) / zoom
-    for x = x1, sx + sw, d * zoom do
-        tmpZeroString = nil
-        if math.abs(realx) < delta then
-            lg.setColor(yColor[1], yColor[2], yColor[3], 255)
-            tmpZeroString = zeroString
-            xc = 0
-        elseif xc >= sds - 1 then
-            lg.setColor(color[1], color[2], color[3], 255)
-            xc = 0
-        else
-            lg.setColor(color[1] * ff, color[2] * ff, color[3] * ff, 255)
-            xc = xc + 1
-        end
-        lg.printf(tmpZeroString or realx, x + 2, sy, 200, "left")
-        realx = realx + d
-    end
-
-    -- horizontal lines
-    local yc = mod(camtop / d, sds) - 1
-    local realy = camtop + (y1 - sy) / zoom
-    for y = y1, sy + sh, d * zoom do
-        tmpZeroString = nil
-        if math.abs(realy) < delta then
-            lg.setColor(xColor[1], xColor[2], xColor[3], 255)
-            tmpZeroString = zeroString
-            yc = 0
-        elseif yc >= sds - 1 then
-            lg.setColor(color[1], color[2], color[3], 255)
-            yc = 0
-        else
-            lg.setColor(color[1] * ff, color[2] * ff, color[3] * ff, 255)
-            yc = yc + 1
-        end
-        lg.printf(tmpZeroString or realy, sx + 2, y, 200, "left")
-        realy = realy + d
-    end
+local function getCorners(camera)
+    local sx, sy, sw, sh = select(5, unpackCamera(camera))
+    local x1, y1 = toWorld(camera, sx, sy) -- top left
+    local x2, y2 = toWorld(camera, sx + sw, sy) -- top right
+    local x3, y3 = toWorld(camera, sx + sw, sy + sh) -- bottom right
+    local x4, y4 = toWorld(camera, sx, sy + sh) -- bottom left
+    return x1, y1, x2, y2, x3, y3, x4, y4
 end
 
-local function draw(args, visuals)
-    args = args or EMPTY
+function intersect(x1, y1, x2, y2, x3, y3, x4, y4)
+    local x21, x43 = x2 - x1, x4 - x3
+    local y21, y43 = y2 - y1, y4 - y3
+    local d = x21 * y43 - y21 * x43
+    if d == 0 then return false end
+    local xy34 = x3 * y4 - y3 * x4
+    local xy12 = x1 * y2 - y1 * x2
+    local a = xy34 * x21 - xy12 * x43
+    local b = xy34 * y21 - xy12 * y43
+    return a / d, b / d
+end
+
+local function drawLabel(worldx, worly, camera, label)
+    lg.push()
+    lg.origin()
+    local x, y = toScreen(camera, worldx, worly)
+    lg.printf(label, x + 2, y + 2, 400, "left")
+    lg.pop()
+end
+
+local function draw(camera, visuals)
+    camera = camera or EMPTY
     visuals = visuals or EMPTY
-    local camx, camy, zoom, angle, sx, sy, sw, sh = getGeometry(args)
-    local size, sds, drawScale, color, xColor, yColor = getVisuals(visuals)
+    local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
+    local size, sds, ds, color, xColor, yColor, ff = unpackVisuals(visuals)
+    local x1, y1, x2, y2, x3, y3, x4, y4 = getCorners(camera)
+    local swapXYLabels = mod(angle + math.pi/4, math.pi) > math.pi/2
 
     lg.setScissor(sx, sy, sw, sh)
-    local vx, vy, vw, vh = visibleBox(args)
+    local vx, vy, vw, vh = visibleBox(camera)
     local d = getGridInterval(visuals, zoom)
-
-    -- color fade factor between main grid lines and subdivisions
-    local ff = 0.6
-
-    -- floating point comparison delta
-    local delta = d * 0.5
+    local delta = d / 2
 
     lg.push()
     lg.scale(zoom)
-    lg.translate((sw/2 + sx) / zoom, (sh/2 + sy) / zoom)
+    lg.translate((sw / 2 + sx) / zoom, (sh / 2 + sy) / zoom)
     lg.rotate(-angle)
     lg.translate(-camx, -camy)
 
@@ -184,6 +166,18 @@ local function draw(args, visuals)
             xc = xc + 1
         end
         lg.line(x, vy, x, vy + vh)
+        if ds then
+            local cx, cy
+            if swapXYLabels then
+                cx, cy = x4, y4
+            else
+                cx, cy = x2, y2
+            end
+            local ix, iy = intersect(x1, y1, cx, cy, x, vy, x, vy + vh)
+            if ix then
+                drawLabel(ix, iy, camera, "x=" .. x)
+            end
+        end
     end
 
     -- lines parallel to x axis
@@ -200,6 +194,18 @@ local function draw(args, visuals)
             yc = yc + 1
         end
         lg.line(vx, y, vx + vw, y)
+        if ds then
+            local cx, cy
+            if swapXYLabels then
+                cx, cy = x2, y2
+            else
+                cx, cy = x4, y4
+            end
+            local ix, iy = intersect(x1, y1, cx, cy, vx, y, vx + vw, y)
+            if ix then
+                drawLabel(ix, iy, camera, "y=" .. y)
+            end
+        end
     end
 
     lg.pop()
@@ -207,19 +213,12 @@ local function draw(args, visuals)
 
     -- draw origin
     lg.setColor(255, 255, 255, 255)
-    local ox, oy = toScreen(args, 0, 0)
+    local ox, oy = toScreen(camera, 0, 0)
     lg.rectangle("fill", ox - 1, oy - 1, 2, 2)
     lg.circle("line", ox, oy, 8)
 
     lg.setLineWidth(oldLineWidth)
-
-    -- TODO draw scale at non-zero angles
-    if drawScale and angle == 0 then
-        drawScaleText(args, visuals)
-    end
-
     lg.setColor(255, 255, 255, 255)
-
     lg.setScissor()
 end
 
