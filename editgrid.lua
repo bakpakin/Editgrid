@@ -75,10 +75,10 @@ local function getGridInterval(visuals, zoom)
     end
 end
 
-local function visibleBox(camera)
+local function visible(camera)
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local w, h = sw / zoom, sh / zoom
-    if camera.angle ~= 0 then
+    if angle ~= 0 then
         local sin, cos = math.abs(math.sin(angle)), math.abs(math.cos(angle))
         w, h = cos * w + sin * h, sin * w + cos * h
     end
@@ -122,7 +122,7 @@ function intersect(x1, y1, x2, y2, x3, y3, x4, y4)
     return a / d, b / d
 end
 
-local function drawLabel(worldx, worly, camera, label)
+local function drawLabel(camera, worldx, worly, label)
     lg.push()
     lg.origin()
     local x, y = toScreen(camera, worldx, worly)
@@ -139,7 +139,7 @@ local function draw(camera, visuals)
     local swapXYLabels = mod(angle + math.pi/4, math.pi) > math.pi/2
 
     lg.setScissor(sx, sy, sw, sh)
-    local vx, vy, vw, vh = visibleBox(camera)
+    local vx, vy, vw, vh = visible(camera)
     local d = getGridInterval(visuals, zoom)
     local delta = d / 2
 
@@ -175,7 +175,7 @@ local function draw(camera, visuals)
             end
             local ix, iy = intersect(x1, y1, cx, cy, x, vy, x, vy + vh)
             if ix then
-                drawLabel(ix, iy, camera, "x=" .. x)
+                drawLabel(camera, ix, iy, "x=" .. x)
             end
         end
     end
@@ -203,7 +203,7 @@ local function draw(camera, visuals)
             end
             local ix, iy = intersect(x1, y1, cx, cy, vx, y, vx + vw, y)
             if ix then
-                drawLabel(ix, iy, camera, "y=" .. y)
+                drawLabel(camera, ix, iy, "y=" .. y)
             end
         end
     end
@@ -222,8 +222,28 @@ local function draw(camera, visuals)
     lg.setScissor()
 end
 
+local gridIndex = {
+    toWorld = function (self, x, y) return toWorld(self.camera, x, y) end,
+    toScreen = function (self, x, y) return toScreen(self.camera, x, y) end,
+    draw = function (self) return draw(self.camera, self.visuals) end,
+    visible = function (self) return visible(self.camera) end
+}
+
+local gridMt = {
+    __index = gridIndex
+}
+
+local function grid(camera, visuals)
+    return setmetatable({
+        camera = camera or {},
+        visuals = visuals or {}
+    }, gridMt)
+end
+
 return {
     toWorld = toWorld,
     toScreen = toScreen,
-    draw = draw
+    draw = draw,
+    visible = visible,
+    grid = grid
 }

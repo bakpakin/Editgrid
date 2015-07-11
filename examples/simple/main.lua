@@ -12,7 +12,7 @@ local mWorldx, mWorldy = 0, 0
 -- location of grid origin on screen
 local oScreenx, oScreeny = 0, 0
 
--- cam.x, cam.y is the top left corner of the camera
+-- cam.x, cam.y is center of the camera
 local cam = {
     x = 0,
     y = 0,
@@ -20,8 +20,10 @@ local cam = {
     angle = 0
 }
 
+local grid = editgrid.grid(cam)
+
 function love.draw()
-    editgrid.draw(cam)
+    grid:draw()
     love.graphics.printf(
         "Camera position: (" ..
         cam.x .. ", " .. cam.y ..
@@ -50,8 +52,8 @@ function love.update(dt)
         cam.angle = cam.angle - dt
     end
     mx, my = newmx, newmy
-    oScreenx, oScreeny = editgrid.toScreen(cam, 0, 0)
-    mWorldx, mWorldy = editgrid.toWorld(cam, mx, my)
+    oScreenx, oScreeny = grid:toScreen(0, 0)
+    mWorldx, mWorldy = grid:toWorld(mx, my)
 end
 
 function love.mousepressed(x, y, button)
