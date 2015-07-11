@@ -76,5 +76,23 @@ local screenx, screeny = editgrid.toScreen(camera, worldx, worldy)
 ```
 Converts world coordinates to screen coordinates. `camera` can be any camera recognized by Editgrid (gamera, HUMP, table).
 
+```lua
+local vx, vy, vw, vh = editgrid.visible(camera)
+```
+Gets an Axis Aligned Bounding Box (AABB) containing the visible part of the grid that can be seen
+from the camera. May contain some non-visible portions of the grid if the camera angle is not zero.
+
+#### Wrapping it all together
+```lua
+local grid = editgrid.grid(camera, visuals)
+
+grid:draw() -- Equivalent to editgrid.draw(camera, visuals)
+local worldx, worldy = grid:toWorld(x, y) -- Equivalent to editgrid.toWorld(camera, x, y)
+local screenx, screeny = grid:toScreen(x, y) -- Equivalent to editgrid.toScreen(camera, x, y)
+local vx, vy, vw, vh = grid:visible() -- Equivalent to editgrid.visible(camera)
+```
+Instead of passing a `camera` and a `visuals` variable around all the time for Editgrid's functions,
+Editgrid can create a grid object with methods that can be called with colon syntax.
+
 ## Bugs
 If there are bugs or you want to request features, feel free to submit issues.
