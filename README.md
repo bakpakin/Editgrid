@@ -41,6 +41,7 @@ local camera = {
 * `angle` -- the angle of the camera. Default is 0.
 * `(sx, sy, sw, sh)` -- the clipping rectangle (scissor rectangle) for the camera. By default,
 the camera draws to the whole screen (0, 0, love.graphics.getWidth(), love.graphics.getHeight()).
+
 All functions in Editgrid that require a `camera` can use all types of cameras.
 
 `visuals` should be a table containing the following:
@@ -65,6 +66,7 @@ local visuals = {
 * `fadeFactor` -- color multiplier on subdivision grid lines. For example, if `color` is {100, 100, 100} and `fadeFactor` is
 0.8, then the color of the minor gridlines will be {80, 80, 80}. Default is 0.5.
 * `interval` -- optional argument that makes the grid use a fixed interval in world space instead of scaling with camera zoom.
+
 All functions in Editgrid that require a `visuals` table expect this format.
 
 #### Querying the grid
