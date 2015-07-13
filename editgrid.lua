@@ -122,6 +122,57 @@ local function majorInterval(camera, visuals)
     return sds * minorInterval(camera, visuals)
 end
 
+local function cellToWorld(camera, visuals, x, y)
+    local d = minorInterval(camera, visuals)
+    return math.floor(x) * d, math.floor(y) * d
+end
+
+local function cellToScreen(camera, visuals, x, y)
+    return cellToWorld(camera, visuals, toWorld(camera, x, y))
+end
+
+local function worldToCell(camera, visuals, x, y)
+    local d = minorInterval(camera, visuals)
+    return math.floor(x / d), math.floor(y / d)
+end
+
+local function screenToCell(camera, visuals, x, y)
+    return worldToCell(camera, visuals, toWorld(camera, x, y))
+end
+
+local function convertCoords(camera, visuals, src, dest, x, y)
+    camera = camera or EMPTY
+    visuals = visuals or EMPTY
+    assert(
+        src == "screen" or src == "world" or src == "cell",
+        "Unrecognized src " .. tostring(src) .. "."
+    )
+    assert(
+        dest == "screen" or dest == "world" or dest == "cell",
+        "Unrecognized dest " .. tostring(dest) .. "."
+    )
+    if src == dest then return x, y end
+    if src == "screen" then
+        if dest == "cell" then
+            return screenToCell(camera, visuals, x, y)
+        else -- dest == "world"
+            return toWorld(camera, x, y)
+        end
+    elseif src == "cell" then
+        if dest == "screen" then
+            return cellToScreen(camera, visuals, x, y)
+        else -- dest == "world"
+            return cellToWorld(camera, visuals, x, y)
+        end
+    elseif src == "world" then
+        if dest == "cell" then
+            return worldToCell(camera, visuals, x, y)
+        else -- dest == "screen"
+            return toScreen(camera, x, y)
+        end
+    end
+end
+
 local function getCorners(camera)
     local sx, sy, sw, sh = select(5, unpackCamera(camera))
     local x1, y1 = toWorld(camera, sx, sy) -- top left
@@ -246,6 +297,9 @@ end
 local gridIndex = {
     toWorld = function (self, x, y) return toWorld(self.camera, x, y) end,
     toScreen = function (self, x, y) return toScreen(self.camera, x, y) end,
+    convertCoords = function (self, src, dest, x, y)
+        return convertCoords(self.camera, self.visuals, src, dest, x, y)
+    end,
     draw = function (self) return draw(self.camera, self.visuals) end,
     minorInterval = function (self)
         return minorInterval(self.camera, self.visuals)
@@ -270,6 +324,7 @@ end
 return {
     toWorld = toWorld,
     toScreen = toScreen,
+    convertCoords = convertCoords,
     draw = draw,
     visible = visible,
     minorInterval = minorInterval,

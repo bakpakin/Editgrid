@@ -41,6 +41,7 @@ local camera = {
 * `angle` -- the angle of the camera. Default is 0.
 * `(sx, sy, sw, sh)` -- the clipping rectangle (scissor rectangle) for the camera. By default,
 the camera draws to the whole screen (0, 0, love.graphics.getWidth(), love.graphics.getHeight()).
+All functions in Editgrid that require a `camera` can use all types of cameras.
 
 `visuals` should be a table containing the following:
 ```lua
@@ -64,17 +65,29 @@ local visuals = {
 * `fadeFactor` -- color multiplier on subdivision grid lines. For example, if `color` is {100, 100, 100} and `fadeFactor` is
 0.8, then the color of the minor gridlines will be {80, 80, 80}. Default is 0.5.
 * `interval` -- optional argument that makes the grid use a fixed interval in world space instead of scaling with camera zoom.
+All functions in Editgrid that require a `visuals` table expect this format.
 
 #### Querying the grid
 ```lua
+local newx, newy = editgrid.convertCoords(camera, visuals, src, dest, x, y)
+```
+Converts coordinates from one coordinate system to another. `src` and `dest` are
+the source coordinate system and destination coordinate respectively, and can each be one of
+three strings: `"screen"`, `"world"`, and `"cell"`. For example to convert screen coordinates to world
+coordinates, say for mouse interaction, let `src = "screen"` and `dest = "world"`. `"cell"` coordinates
+are based on the cells that the camera sees on the screen.
+
+```lua
 local worldx, worldy = editgrid.toWorld(camera, screenx, screeny)
 ```
-Converts screen coordinates to world coordinates. `camera` can be any camera recognized by Editgrid (gamera, HUMP, table).
+Converts screen coordinates to world coordinates.
+Shortcut for `editgrid.convertCoords(camera, nil, "screen", "world", screenx, screeny)`
 
 ```lua
 local screenx, screeny = editgrid.toScreen(camera, worldx, worldy)
 ```
-Converts world coordinates to screen coordinates. `camera` can be any camera recognized by Editgrid (gamera, HUMP, table).
+Converts world coordinates to screen coordinates.
+Shortcut for `editgrid.convertCoords(camera, nil, "screen", "world", worldx, worldy)`
 
 ```lua
 local vx, vy, vw, vh = editgrid.visible(camera)

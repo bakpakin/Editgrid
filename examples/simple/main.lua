@@ -24,6 +24,7 @@ local grid = editgrid.grid(cam)
 
 function love.draw()
     grid:draw()
+    local cx, cy = grid:convertCoords("screen", "cell", mx, my)
     love.graphics.printf(
         "Camera position: (" ..
         cam.x .. ", " .. cam.y ..
@@ -31,6 +32,8 @@ function love.draw()
         cam.zoom ..
         "\nMouse position on Grid: (" ..
         mWorldx  .. ", " .. mWorldy ..
+        ")\nCell coordinate under mouse: (" ..
+        cx .. ", " .. cy ..
         ")\nGrid origin position on screen: (" ..
         oScreenx .. ", " .. oScreeny .. ")",
     30, 30, 800, "left")

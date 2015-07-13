@@ -19,6 +19,7 @@ function love.draw()
     editgrid.draw(cam)
     local camx, camy = cam:getPosition()
     local scale = cam:getScale()
+    local cx, cy = editgrid.convertCoords(cam, nil, "screen", "cell", mx, my)
     love.graphics.printf(
         "Camera position: (" ..
         camx .. ", " .. camy ..
@@ -26,6 +27,8 @@ function love.draw()
         scale ..
         "\nMouse position on Grid: (" ..
         mWorldx  .. ", " .. mWorldy ..
+        ")\nCell coordinate under mouse: (" ..
+        cx .. ", " .. cy ..
         ")\nGrid origin position on screen: (" ..
         oScreenx .. ", " .. oScreeny .. ")",
     30, 30, 800, "left")
