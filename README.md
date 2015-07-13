@@ -74,10 +74,10 @@ All functions in Editgrid that require a `visuals` table expect this format.
 local newx, newy = editgrid.convertCoords(camera, visuals, src, dest, x, y)
 ```
 Converts coordinates from one coordinate system to another. `src` and `dest` are
-the source coordinate system and destination coordinate respectively, and can each be one of
-three strings: `"screen"`, `"world"`, and `"cell"`. For example to convert screen coordinates to world
+the source coordinate system and destination coordinate system respectively, and can each be one of
+three strings: `"screen"`, `"world"`, and `"cell"`. For example, to convert screen coordinates to world
 coordinates, say for mouse interaction, let `src = "screen"` and `dest = "world"`. `"cell"` coordinates
-are based on the cells that the camera sees on the screen.
+are based on the cells that the camera sees on the screen; also, all `"cell"` coordinates are integers.
 
 ```lua
 local worldx, worldy = editgrid.toWorld(camera, screenx, screeny)
@@ -113,6 +113,7 @@ Similar to `editgrid.minorInterval`, but returns the distance between major grid
 local grid = editgrid.grid(camera, visuals)
 
 grid:draw() -- Equivalent to editgrid.draw(camera, visuals)
+local newx, newy = grid:convertCoords(src, dest, x, y) -- Equivalent to editgrid.convertCoords(camera, visuals, src, dest, x, y)
 local worldx, worldy = grid:toWorld(x, y) -- Equivalent to editgrid.toWorld(camera, x, y)
 local screenx, screeny = grid:toScreen(x, y) -- Equivalent to editgrid.toScreen(camera, x, y)
 local vx, vy, vw, vh = grid:visible() -- Equivalent to editgrid.visible(camera)
