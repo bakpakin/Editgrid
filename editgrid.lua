@@ -31,6 +31,14 @@ local function mod(x, y)
     return x - floor(x, y)
 end
 
+local function checkType(x, typename, name)
+    assert(
+        type(x) == typename,
+        "Expected "..name.." (type = "..type(x)..") to be a "..typename.."."
+    )
+    return x
+end
+
 local function unpackCamera(t)
     local sx, sy, sw, sh
     if t.getWindow then -- assume t is a gamera camera
@@ -80,7 +88,7 @@ local function getGridInterval(visuals, zoom)
 end
 
 local function visible(camera)
-    camera = camera or EMPTY
+    camera = checkType(camera or EMPTY, "table", "camera")
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local w, h = sw / zoom, sh / zoom
     if angle ~= 0 then
@@ -91,7 +99,9 @@ local function visible(camera)
 end
 
 local function toWorld(camera, screenx, screeny)
-    camera = camera or EMPTY
+    checkType(screenx, "number", "screenx")
+    checkType(screeny, "number", "screeny")
+    camera = checkType(camera or EMPTY, "table", "camera")
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local sin, cos = math.sin(angle), math.cos(angle)
     local x, y = (screenx - sw/2 - sx) / zoom, (screeny - sh/2 - sy) / zoom
@@ -100,7 +110,9 @@ local function toWorld(camera, screenx, screeny)
 end
 
 local function toScreen(camera, worldx, worldy)
-    camera = camera or EMPTY
+    checkType(worldx, "number", "worldx")
+    checkType(worldy, "number", "worldy")
+    camera = checkType(camera or EMPTY, "table", "camera")
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local sin, cos = math.sin(angle), math.cos(angle)
     local x, y = worldx - camx, worldy - camy
@@ -109,15 +121,15 @@ local function toScreen(camera, worldx, worldy)
 end
 
 local function minorInterval(camera, visuals)
-    camera = camera or EMPTY
-    visuals = visuals or EMPTY
+    camera = checkType(camera or EMPTY, "table", "camera")
+    visuals = checkType(visuals or EMPTY, "table", "visuals")
     local zoom = select(3, unpackCamera(camera))
     return getGridInterval(visuals, zoom)
 end
 
 local function majorInterval(camera, visuals)
-    camera = camera or EMPTY
-    visuals = visuals or EMPTY
+    camera = checkType(camera or EMPTY, "table", "camera")
+    visuals = checkType(visuals or EMPTY, "table", "visuals")
     local sds = select(2, unpackVisuals(visuals))
     return sds * minorInterval(camera, visuals)
 end
@@ -141,8 +153,10 @@ local function screenToCell(camera, visuals, x, y)
 end
 
 local function convertCoords(camera, visuals, src, dest, x, y)
-    camera = camera or EMPTY
-    visuals = visuals or EMPTY
+    checkType(x, "number", "x")
+    checkType(y, "number", "y")
+    camera = checkType(camera or EMPTY, "table", "camera")
+    visuals = checkType(visuals or EMPTY, "table", "visuals")
     assert(
         src == "screen" or src == "world" or src == "cell",
         "Unrecognized src " .. tostring(src) .. "."
@@ -203,8 +217,8 @@ local function drawLabel(camera, worldx, worly, label)
 end
 
 local function draw(camera, visuals)
-    camera = camera or EMPTY
-    visuals = visuals or EMPTY
+    camera = checkType(camera or EMPTY, "table", "camera")
+    visuals = checkType(visuals or EMPTY, "table", "visuals")
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local size, sds, ds, color, xColor, yColor, ff = unpackVisuals(visuals)
     local x1, y1, x2, y2, x3, y3, x4, y4 = getCorners(camera)
@@ -315,9 +329,11 @@ local gridMt = {
 }
 
 local function grid(camera, visuals)
+    camera = checkType(camera or {}, "table", "camera")
+    visuals = checkType(visuals or {}, "table", "visuals")
     return setmetatable({
-        camera = camera or {},
-        visuals = visuals or {}
+        camera = camera,
+        visuals = visuals
     }, gridMt)
 end
 
