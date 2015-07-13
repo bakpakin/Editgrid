@@ -89,7 +89,7 @@ Shortcut for `editgrid.convertCoords(camera, nil, "screen", "world", screenx, sc
 local screenx, screeny = editgrid.toScreen(camera, worldx, worldy)
 ```
 Converts world coordinates to screen coordinates.
-Shortcut for `editgrid.convertCoords(camera, nil, "screen", "world", worldx, worldy)`
+Shortcut for `editgrid.convertCoords(camera, nil, "world", "screen", worldx, worldy)`
 
 ```lua
 local vx, vy, vw, vh = editgrid.visible(camera)
