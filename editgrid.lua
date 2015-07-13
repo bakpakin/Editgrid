@@ -50,18 +50,22 @@ local function unpackCamera(t)
         sx, sy, sw, sh
 end
 
+local DEFAULT_COLOR = {220, 220, 220}
+local DEFAULT_X_COLOR = {255, 0, 0}
+local DEFAULT_Y_COLOR = {0, 255, 0}
+
 local function unpackVisuals(t)
     local size = t.size or 256
     local sds = t.subdivisions or 4
-    local color = t.color or {220, 220, 220}
+    local color = t.color or DEFAULT_COLOR
     local drawScale
     if t.drawScale == nil then
         drawScale = true
     else
         drawScale = t.drawScale
     end
-    local xColor = t.xColor or {255, 0, 0}
-    local yColor = t.yColor or {0, 255, 0}
+    local xColor = t.xColor or DEFAULT_X_COLOR
+    local yColor = t.yColor or DEFAULT_Y_COLOR
     local fadeFactor = t.fadeFactor or 0.5
     return size, sds, drawScale, color, xColor, yColor, fadeFactor
 end
@@ -99,6 +103,16 @@ local function toScreen(camera, worldx, worldy)
     local x, y = worldx - camx, worldy - camy
     x, y = cos * x + sin * y, -sin * x + cos * y
     return zoom * x + sw/2 + sx, zoom * y + sh/2 + sy
+end
+
+local function minorInterval(camera, visuals)
+    local zoom = select(3, unpackCamera(camera))
+    return getGridInterval(visuals, zoom)
+end
+
+local function majorInterval(camera, visuals)
+    local sds = select(2, unpackVisuals(visuals))
+    return sds * minorInterval(camera, visuals)
 end
 
 local function getCorners(camera)
@@ -226,6 +240,12 @@ local gridIndex = {
     toWorld = function (self, x, y) return toWorld(self.camera, x, y) end,
     toScreen = function (self, x, y) return toScreen(self.camera, x, y) end,
     draw = function (self) return draw(self.camera, self.visuals) end,
+    minorInterval = function (self)
+        return minorInterval(self.camera, self.visuals)
+    end,
+    majorInterval = function (self)
+        return majorInterval(self.camera, self.visuals)
+    end,
     visible = function (self) return visible(self.camera) end
 }
 
@@ -245,5 +265,7 @@ return {
     toScreen = toScreen,
     draw = draw,
     visible = visible,
+    minorInterval = minorInterval,
+    majorInterval = majorInterval,
     grid = grid
 }

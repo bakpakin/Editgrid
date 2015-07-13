@@ -63,9 +63,9 @@ local visuals = {
 * `yColor` -- color of the y axis. Default is {0, 255, 0} (green).
 * `fadeFactor` -- color multiplier on subdivision grid lines. For example, if `color` is {100, 100, 100} and `fadeFactor` is
 0.8, then the color of the minor gridlines will be {80, 80, 80}. Default is 0.5.
-* `interval` -- optional argument that makes the grid use a fixed interval instead of scaling with camera zoom.
+* `interval` -- optional argument that makes the grid use a fixed interval in world space instead of scaling with camera zoom.
 
-#### Coordinate conversion
+#### Querying the grid
 ```lua
 local worldx, worldy = editgrid.toWorld(camera, screenx, screeny)
 ```
@@ -82,6 +82,17 @@ local vx, vy, vw, vh = editgrid.visible(camera)
 Gets an Axis Aligned Bounding Box (AABB) containing the visible part of the grid that can be seen
 from the camera. May contain some non-visible portions of the grid if the camera angle is not zero.
 
+```lua
+local interval = editgrid.minorInterval(camera, visuals)
+```
+Gets the distance between minor grid lines (in world space) on the screen. To get the
+distance in screen space, just multiply `interval` by camera zoom.
+
+```lua
+local interval = editgrid.majorInterval(camera, visuals)
+```
+Similar to `editgrid.minorInterval`, but returns the distance between major grid lines (the bolder grid lines).
+
 #### Wrapping it all together
 ```lua
 local grid = editgrid.grid(camera, visuals)
@@ -90,9 +101,12 @@ grid:draw() -- Equivalent to editgrid.draw(camera, visuals)
 local worldx, worldy = grid:toWorld(x, y) -- Equivalent to editgrid.toWorld(camera, x, y)
 local screenx, screeny = grid:toScreen(x, y) -- Equivalent to editgrid.toScreen(camera, x, y)
 local vx, vy, vw, vh = grid:visible() -- Equivalent to editgrid.visible(camera)
+local minor = grid:minorInterval() -- Equivalent to editgrid.minorInterval(camera, visuals)
+local major = grid:majorInterval() -- Equivalent to editgrid.majorInterval(camera, visuals)
 ```
 Instead of passing a `camera` and a `visuals` variable around all the time for Editgrid's functions,
-Editgrid can create a grid object with methods that can be called with colon syntax.
+Editgrid can create a grid object with methods that can be called with colon syntax. The `camera` and `visuals`
+tables can be updated at any time without any adverse effects.
 
 ## Bugs
 If there are bugs or you want to request features, feel free to submit issues.
