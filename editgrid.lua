@@ -80,6 +80,7 @@ local function getGridInterval(visuals, zoom)
 end
 
 local function visible(camera)
+    camera = camera or EMPTY
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local w, h = sw / zoom, sh / zoom
     if angle ~= 0 then
@@ -90,6 +91,7 @@ local function visible(camera)
 end
 
 local function toWorld(camera, screenx, screeny)
+    camera = camera or EMPTY
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local sin, cos = math.sin(angle), math.cos(angle)
     local x, y = (screenx - sw/2 - sx) / zoom, (screeny - sh/2 - sy) / zoom
@@ -98,6 +100,7 @@ local function toWorld(camera, screenx, screeny)
 end
 
 local function toScreen(camera, worldx, worldy)
+    camera = camera or EMPTY
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
     local sin, cos = math.sin(angle), math.cos(angle)
     local x, y = worldx - camx, worldy - camy
@@ -106,11 +109,15 @@ local function toScreen(camera, worldx, worldy)
 end
 
 local function minorInterval(camera, visuals)
+    camera = camera or EMPTY
+    visuals = visuals or EMPTY
     local zoom = select(3, unpackCamera(camera))
     return getGridInterval(visuals, zoom)
 end
 
 local function majorInterval(camera, visuals)
+    camera = camera or EMPTY
+    visuals = visuals or EMPTY
     local sds = select(2, unpackVisuals(visuals))
     return sds * minorInterval(camera, visuals)
 end
