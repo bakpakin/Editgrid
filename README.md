@@ -54,6 +54,8 @@ local visuals = {
     xColor = {255, 255, 0},
     yColor = {0, 255, 255},
     fadeFactor = 0.3,
+    textFadeFactor = 0.5,
+    hideOrigin = true,
     interval = 200
 }
 ```
@@ -65,6 +67,8 @@ local visuals = {
 * `yColor` -- color of the y axis. Default is {0, 255, 0} (green).
 * `fadeFactor` -- color multiplier on subdivision grid lines. For example, if `color` is {100, 100, 100} and `fadeFactor` is
 0.8, then the color of the minor gridlines will be {80, 80, 80}. Default is 0.5.
+* `textFadeFactor` -- color multiplier on grid labels. Similar to `fadeFactor`. Default is 1.0.
+* `hideOrigin` -- boolean indicating whether or not to hide the origin circle. Default is false.
 * `interval` -- optional argument that makes the grid use a fixed interval in world space instead of scaling with camera zoom.
 
 All functions in Editgrid that require a `visuals` table expect this format.
