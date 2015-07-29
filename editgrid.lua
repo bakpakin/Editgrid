@@ -75,7 +75,8 @@ local function unpackVisuals(t)
     local xColor = t.xColor or DEFAULT_X_COLOR
     local yColor = t.yColor or DEFAULT_Y_COLOR
     local fadeFactor = t.fadeFactor or 0.5
-    return size, sds, drawScale, color, xColor, yColor, fadeFactor
+    local textFadeFactor = t.textFadeFactor or 1.0
+    return size, sds, drawScale, color, xColor, yColor, fadeFactor, textFadeFactor
 end
 
 local function getGridInterval(visuals, zoom)
@@ -220,7 +221,7 @@ local function draw(camera, visuals)
     camera = checkType(camera or EMPTY, "table", "camera")
     visuals = checkType(visuals or EMPTY, "table", "visuals")
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
-    local size, sds, ds, color, xColor, yColor, ff = unpackVisuals(visuals)
+    local size, sds, ds, color, xColor, yColor, ff, tf = unpackVisuals(visuals)
     local x1, y1, x2, y2, x3, y3, x4, y4 = getCorners(camera)
     local swapXYLabels = mod(angle + math.pi/4, math.pi) > math.pi/2
 
@@ -241,10 +242,7 @@ local function draw(camera, visuals)
     -- lines parallel to y axis
     local xc = sds
     for x = floor(vx, d * sds), vx + vw, d do
-        if math.abs(x) < delta then
-            lg.setColor(yColor[1], yColor[2], yColor[3], 255)
-            xc = 1
-        elseif xc >= sds then
+        if xc >= sds then
             lg.setColor(color[1], color[2], color[3], 255)
             xc = 1
         else
@@ -252,6 +250,31 @@ local function draw(camera, visuals)
             xc = xc + 1
         end
         lg.line(x, vy, x, vy + vh)
+    end
+
+    -- lines parallel to x axis
+    local yc = sds
+    for y = floor(vy, d * sds), vy + vh, d do
+        if yc >= sds then
+            lg.setColor(color[1], color[2], color[3], 255)
+            yc = 1
+        else
+            lg.setColor(color[1] * ff, color[2] * ff, color[3] * ff, 255)
+            yc = yc + 1
+        end
+        if math.abs(y) > delta then
+            lg.line(vx, y, vx + vw, y)
+        end
+    end
+
+    -- draw labels
+    for x = floor(vx, d * sds), vx + vw, d do
+        if math.abs(x) < delta then
+            lg.setColor(yColor[1] * tf, yColor[2] * tf, yColor[3] * tf, 255)
+            lg.line(x, vy, x, vy + vh)
+        else
+            lg.setColor(color[1] * tf, color[2] * tf, color[3] * tf, 255)
+        end
         if ds then
             local cx, cy
             if swapXYLabels then
@@ -266,20 +289,13 @@ local function draw(camera, visuals)
         end
     end
 
-    -- lines parallel to x axis
-    local yc = sds
     for y = floor(vy, d * sds), vy + vh, d do
         if math.abs(y) < delta then
-            lg.setColor(xColor[1], xColor[2], xColor[3], 255)
-            yc = 1
-        elseif yc >= sds then
-            lg.setColor(color[1], color[2], color[3], 255)
-            yc = 1
+            lg.setColor(xColor[1] * tf, xColor[2] * tf, xColor[3] * tf, 255)
+            lg.line(vx, y, vx + vw, y)
         else
-            lg.setColor(color[1] * ff, color[2] * ff, color[3] * ff, 255)
-            yc = yc + 1
+            lg.setColor(color[1] * tf, color[2] * tf, color[3] * tf, 255)
         end
-        lg.line(vx, y, vx + vw, y)
         if ds then
             local cx, cy
             if swapXYLabels then
@@ -301,6 +317,7 @@ local function draw(camera, visuals)
     lg.setColor(255, 255, 255, 255)
     local ox, oy = toScreen(camera, 0, 0)
     lg.rectangle("fill", ox - 1, oy - 1, 2, 2)
+    lg.setColor(255, 255, 255, 100)
     lg.circle("line", ox, oy, 8)
 
     lg.setLineWidth(oldLineWidth)
