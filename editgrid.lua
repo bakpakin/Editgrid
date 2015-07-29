@@ -80,9 +80,9 @@ local function unpackVisuals(t, zoom)
     end
     local xColor = t.xColor or DEFAULT_X_COLOR
     local yColor = t.yColor or DEFAULT_Y_COLOR
-    local hideOrigin = t.hideOrigin
     local fadeFactor = t.fadeFactor or 0.5
     local textFadeFactor = t.textFadeFactor or 1.0
+    local hideOrigin = t.hideOrigin
     return size, sds, drawScale, color, xColor, yColor, fadeFactor, textFadeFactor, hideOrigin
 end
 
