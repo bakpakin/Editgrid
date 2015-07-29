@@ -62,9 +62,15 @@ local DEFAULT_COLOR = {220, 220, 220}
 local DEFAULT_X_COLOR = {255, 0, 0}
 local DEFAULT_Y_COLOR = {0, 255, 0}
 
-local function unpackVisuals(t)
+local function unpackVisuals(t, zoom)
     local size = t.size or 256
+    if type(size) == "function" then
+        size = size(zoom)
+    end
     local sds = t.subdivisions or 4
+    if type(sds) == "function" then
+        sds = sds(size, zoom)
+    end
     local color = t.color or DEFAULT_COLOR
     local drawScale
     if t.drawScale == nil then
@@ -74,15 +80,16 @@ local function unpackVisuals(t)
     end
     local xColor = t.xColor or DEFAULT_X_COLOR
     local yColor = t.yColor or DEFAULT_Y_COLOR
+    local hideOrigin = t.hideOrigin
     local fadeFactor = t.fadeFactor or 0.5
-    return size, sds, drawScale, color, xColor, yColor, fadeFactor
+    return size, sds, drawScale, color, xColor, yColor, fadeFactor, hideOrigin
 end
 
 local function getGridInterval(visuals, zoom)
     if visuals.interval then
         return visuals.interval
     else
-        local size, sds = unpackVisuals(visuals)
+        local size, sds = unpackVisuals(visuals, zoom)
         return size * math.pow(sds, -math.ceil(math.log(zoom, sds)))
     end
 end
@@ -130,7 +137,8 @@ end
 local function majorInterval(camera, visuals)
     camera = checkType(camera or EMPTY, "table", "camera")
     visuals = checkType(visuals or EMPTY, "table", "visuals")
-    local sds = select(2, unpackVisuals(visuals))
+    local zoom = select(3, unpackCamera(camera))
+    local sds = select(2, unpackVisuals(visuals, zoom))
     return sds * minorInterval(camera, visuals)
 end
 
@@ -220,7 +228,7 @@ local function draw(camera, visuals)
     camera = checkType(camera or EMPTY, "table", "camera")
     visuals = checkType(visuals or EMPTY, "table", "visuals")
     local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
-    local size, sds, ds, color, xColor, yColor, ff = unpackVisuals(visuals)
+    local size, sds, ds, color, xColor, yColor, ff, hideOrigin = unpackVisuals(visuals, zoom)
     local x1, y1, x2, y2, x3, y3, x4, y4 = getCorners(camera)
     local swapXYLabels = mod(angle + math.pi/4, math.pi) > math.pi/2
 
@@ -298,10 +306,12 @@ local function draw(camera, visuals)
     lg.setLineWidth(1)
 
     -- draw origin
-    lg.setColor(255, 255, 255, 255)
-    local ox, oy = toScreen(camera, 0, 0)
-    lg.rectangle("fill", ox - 1, oy - 1, 2, 2)
-    lg.circle("line", ox, oy, 8)
+    if not hideOrigin then
+        lg.setColor(255, 255, 255, 255)
+        local ox, oy = toScreen(camera, 0, 0)
+        lg.rectangle("fill", ox - 1, oy - 1, 2, 2)
+        lg.circle("line", ox, oy, 8)
+    end
 
     lg.setLineWidth(oldLineWidth)
     lg.setColor(255, 255, 255, 255)
