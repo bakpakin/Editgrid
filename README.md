@@ -73,6 +73,17 @@ local visuals = {
 
 All functions in Editgrid that require a `visuals` table expect this format.
 
+```lua
+editgrid.push(camera)
+-- draw()
+-- stuff()
+love.graphics.pop()
+```
+Editgrid enables drawing with compatible cameras in cross platform way. Surround normal drawing
+commands with an `editgrid.push` and a `love.grpahics.pop` to convert screen space to grid
+space in your drawing. This should have equivalent results to drawing with a compatible
+camera module.
+
 #### Querying the grid
 ```lua
 local newx, newy = editgrid.convertCoords(camera, visuals, src, dest, x, y)
@@ -117,6 +128,7 @@ Similar to `editgrid.minorInterval`, but returns the distance between major grid
 local grid = editgrid.grid(camera, visuals)
 
 grid:draw() -- Equivalent to editgrid.draw(camera, visuals)
+grid:push() -- Equivalent to editgrid.push(camera)
 local newx, newy = grid:convertCoords(src, dest, x, y) -- Equivalent to editgrid.convertCoords(camera, visuals, src, dest, x, y)
 local worldx, worldy = grid:toWorld(x, y) -- Equivalent to editgrid.toWorld(camera, x, y)
 local screenx, screeny = grid:toScreen(x, y) -- Equivalent to editgrid.toScreen(camera, x, y)

@@ -225,6 +225,16 @@ local function drawLabel(camera, worldx, worly, label)
     lg.pop()
 end
 
+local function push(camera)
+    camera = checkType(camera or EMPTY, "table", "camera")
+    local camx, camy, zoom, angle, sx, sy, sw, sh = unpackCamera(camera)
+    lg.push()
+    lg.scale(zoom)
+    lg.translate((sw / 2 + sx) / zoom, (sh / 2 + sy) / zoom)
+    lg.rotate(-angle)
+    lg.translate(-camx, -camy)
+end
+
 local function draw(camera, visuals)
     camera = checkType(camera or EMPTY, "table", "camera")
     visuals = checkType(visuals or EMPTY, "table", "visuals")
@@ -238,11 +248,7 @@ local function draw(camera, visuals)
     local d = getGridInterval(visuals, zoom)
     local delta = d / 2
 
-    lg.push()
-    lg.scale(zoom)
-    lg.translate((sw / 2 + sx) / zoom, (sh / 2 + sy) / zoom)
-    lg.rotate(-angle)
-    lg.translate(-camx, -camy)
+    push(camera)
 
     local oldLineWidth = lg.getLineWidth()
     lg.setLineWidth(1 / zoom)
@@ -347,7 +353,8 @@ local gridIndex = {
     majorInterval = function (self)
         return majorInterval(self.camera, self.visuals)
     end,
-    visible = function (self) return visible(self.camera) end
+    visible = function (self) return visible(self.camera) end,
+    push = function (self) return push(self.camera) end
 }
 
 local gridMt = {
@@ -371,5 +378,6 @@ return {
     visible = visible,
     minorInterval = minorInterval,
     majorInterval = majorInterval,
-    grid = grid
+    grid = grid,
+    push = push
 }
