@@ -80,7 +80,7 @@ editgrid.push(camera)
 love.graphics.pop()
 ```
 Editgrid enables drawing with compatible cameras in cross platform way. Surround normal drawing
-commands with an `editgrid.push` and a `love.grpahics.pop` to convert screen space to grid
+commands with an `editgrid.push` and a `love.graphics.pop` to convert screen space to grid
 space in your drawing. This should have equivalent results to drawing with a compatible
 camera module.
 
