@@ -41,7 +41,7 @@ end
 
 function love.update(dt)
     local newmx, newmy = love.mouse.getPosition()
-    if love.mouse.isDown("l") then
+    if love.mouse.isDown(1) then
         local s, c = math.sin(cam.angle), math.cos(cam.angle)
         local dx = (-newmx + mx) / cam.zoom
         local dy = (-newmy + my) / cam.zoom
@@ -59,11 +59,11 @@ function love.update(dt)
     mWorldx, mWorldy = grid:toWorld(mx, my)
 end
 
-function love.mousepressed(x, y, button)
+function love.wheelmoved(x, y)
     local zoomfactor = nil
-    if button == "wu" then
+    if y > 0 then
         zoomfactor = 1.05
-    elseif button == "wd" then
+    elseif y < 0 then
         zoomfactor = 1 / 1.05
     end
     if zoomfactor then

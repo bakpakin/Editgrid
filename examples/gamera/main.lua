@@ -39,7 +39,7 @@ function love.update(dt)
     local camx, camy = cam:getPosition()
     local scale = cam:getScale()
     local angle = cam:getAngle()
-    if love.mouse.isDown("l") then
+    if love.mouse.isDown(1) then
         local s, c = cam.sin, cam.cos
         local dx = (-newmx + mx) / scale
         local dy = (-newmy + my) / scale
@@ -56,11 +56,11 @@ function love.update(dt)
     mWorldx, mWorldy = cam:toWorld(mx, my)
 end
 
-function love.mousepressed(x, y, button)
+function love.wheelmoved(x, y)
     local zoomfactor = nil
-    if button == "wu" then
+    if y > 0 then
         zoomfactor = 1.05
-    elseif button == "wd" then
+    elseif y < 0 then
         zoomfactor = 1 / 1.05
     end
     if zoomfactor then
