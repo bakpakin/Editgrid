@@ -58,9 +58,9 @@ local function unpackCamera(t)
         sx, sy, sw, sh
 end
 
-local DEFAULT_COLOR = {220, 220, 220}
-local DEFAULT_X_COLOR = {255, 0, 0}
-local DEFAULT_Y_COLOR = {0, 255, 0}
+local DEFAULT_COLOR = {0.97, 0.97, 0.97}
+local DEFAULT_X_COLOR = {1, 0, 0}
+local DEFAULT_Y_COLOR = {0, 1, 0}
 
 local function unpackVisuals(t, zoom)
     local size = t.size or 256
@@ -257,10 +257,10 @@ local function draw(camera, visuals)
     local xc = sds
     for x = floor(vx, d * sds), vx + vw, d do
         if xc >= sds then
-            lg.setColor(color[1], color[2], color[3], 255)
+            lg.setColor(color[1], color[2], color[3], 1)
             xc = 1
         else
-            lg.setColor(color[1] * ff, color[2] * ff, color[3] * ff, 255)
+            lg.setColor(color[1] * ff, color[2] * ff, color[3] * ff, 1)
             xc = xc + 1
         end
         lg.line(x, vy, x, vy + vh)
@@ -270,10 +270,10 @@ local function draw(camera, visuals)
     local yc = sds
     for y = floor(vy, d * sds), vy + vh, d do
         if yc >= sds then
-            lg.setColor(color[1], color[2], color[3], 255)
+            lg.setColor(color[1], color[2], color[3], 1)
             yc = 1
         else
-            lg.setColor(color[1] * ff, color[2] * ff, color[3] * ff, 255)
+            lg.setColor(color[1] * ff, color[2] * ff, color[3] * ff, 1)
             yc = yc + 1
         end
         if math.abs(y) > delta then
@@ -284,10 +284,10 @@ local function draw(camera, visuals)
     -- draw labels
     for x = floor(vx, d * sds), vx + vw, d do
         if math.abs(x) < delta then
-            lg.setColor(yColor[1] * tf, yColor[2] * tf, yColor[3] * tf, 255)
+            lg.setColor(yColor[1] * tf, yColor[2] * tf, yColor[3] * tf, 1)
             lg.line(x, vy, x, vy + vh)
         else
-            lg.setColor(color[1] * tf, color[2] * tf, color[3] * tf, 255)
+            lg.setColor(color[1] * tf, color[2] * tf, color[3] * tf, 1)
         end
         if ds then
             local cx, cy
@@ -305,10 +305,10 @@ local function draw(camera, visuals)
 
     for y = floor(vy, d * sds), vy + vh, d do
         if math.abs(y) < delta then
-            lg.setColor(xColor[1] * tf, xColor[2] * tf, xColor[3] * tf, 255)
+            lg.setColor(xColor[1] * tf, xColor[2] * tf, xColor[3] * tf, 1)
             lg.line(vx, y, vx + vw, y)
         else
-            lg.setColor(color[1] * tf, color[2] * tf, color[3] * tf, 255)
+            lg.setColor(color[1] * tf, color[2] * tf, color[3] * tf, 1)
         end
         if ds then
             local cx, cy
@@ -329,14 +329,14 @@ local function draw(camera, visuals)
 
     -- draw origin
     if not hideOrigin then
-        lg.setColor(255, 255, 255, 255)
+        lg.setColor(1, 1, 1, 1)
         local ox, oy = toScreen(camera, 0, 0)
         lg.rectangle("fill", ox - 1, oy - 1, 2, 2)
         lg.circle("line", ox, oy, 8)
     end
 
     lg.setLineWidth(oldLineWidth)
-    lg.setColor(255, 255, 255, 255)
+    lg.setColor(1, 1, 1, 1)
     lg.setScissor()
 end
 
