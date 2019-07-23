@@ -235,6 +235,10 @@ local function push(camera)
     lg.translate(-camx, -camy)
 end
 
+local function pop(camera)
+	lg.pop()
+end
+
 local function draw(camera, visuals)
     camera = checkType(camera or EMPTY, "table", "camera")
     visuals = checkType(visuals or EMPTY, "table", "visuals")
@@ -379,5 +383,6 @@ return {
     minorInterval = minorInterval,
     majorInterval = majorInterval,
     grid = grid,
-    push = push
+    push = push,
+    pop = pop,
 }
