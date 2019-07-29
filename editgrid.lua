@@ -235,7 +235,7 @@ local function push(camera)
     lg.translate(-camx, -camy)
 end
 
-local function pop(camera)
+local function pop()
 	lg.pop()
 end
 
