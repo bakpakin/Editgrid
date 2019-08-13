@@ -51,8 +51,8 @@ local visuals = {
     subdivisions = 5,
     color = {128, 140, 250},
     drawScale = false,
-    xColor = {255, 255, 0},
-    yColor = {0, 255, 255},
+    xColor = {1, 1, 0},
+    yColor = {0, 1, 1},
     fadeFactor = 0.3,
     textFadeFactor = 0.5,
     hideOrigin = true,
@@ -63,10 +63,10 @@ local visuals = {
 * `subdivisions` -- the number of minor subdivisions between each major subdivision. Default is 4.
 * `color` -- a list of three numbers representing the rgb values of the grid lines. Default is {220, 220, 220}.
 * `drawScale` -- boolean indicating if the coordinate value is drawn for each gridline. Default is true.
-* `xColor` -- color of the x axis. Default is {255, 0, 0} (red).
-* `yColor` -- color of the y axis. Default is {0, 255, 0} (green).
-* `fadeFactor` -- color multiplier on subdivision grid lines. For example, if `color` is {100, 100, 100} and `fadeFactor` is
-0.8, then the color of the minor gridlines will be {80, 80, 80}. Default is 0.5.
+* `xColor` -- color of the x axis. Default is {1, 0, 0} (red).
+* `yColor` -- color of the y axis. Default is {0, 1, 0} (green).
+* `fadeFactor` -- color multiplier on subdivision grid lines. For example, if `color` is {0.39, 0.39, 0.39} and `fadeFactor` is
+0.8, then the color of the minor gridlines will be {0.31, 0.31, 0.31}. Default is 0.5.
 * `textFadeFactor` -- color multiplier on grid labels. Similar to `fadeFactor`. Default is 1.0.
 * `hideOrigin` -- boolean indicating whether or not to hide the origin circle. Default is false.
 * `interval` -- optional argument that makes the grid use a fixed interval in world space instead of scaling with camera zoom.
